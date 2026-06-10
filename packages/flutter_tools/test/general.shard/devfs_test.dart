@@ -131,6 +131,9 @@ void main() {
 
     expect(content.isModifiedAfter(fiveSecondsAgo), isTrue);
     expect(content.isModifiedAfter(fiveSecondsLater), isFalse);
+
+    file.deleteSync();
+    expect(content.isModifiedAfter(fiveSecondsAgo), isTrue);
   });
 
   testWithoutContext('DevFSStringCompressingBytesContent', () {

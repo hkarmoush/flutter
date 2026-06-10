@@ -133,7 +133,7 @@ class DevFSFileContent extends DevFSContent {
   bool isModifiedAfter(DateTime time) {
     final (FileStat? currentStat, _) = _statFile();
     if (currentStat == null) {
-      return false;
+      return true;
     }
     return currentStat.modified.isAfter(time);
   }
