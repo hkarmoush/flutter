@@ -113,6 +113,26 @@ void main() {
     expect(content.isModified, isFalse);
   });
 
+  testWithoutContext('DevFSFileContent.isModifiedAfter without prior markClean', () async {
+    // Regression test for https://github.com/flutter/flutter/issues/187725.
+    // isModifiedAfter must compare against the provided time even when
+    // markClean() has never been called (i.e. _fileStat is null), which is
+    // the case for AssetBundleEntry objects inspected by _needsRebuild().
+    final FileSystem fileSystem = MemoryFileSystem.test();
+    final File file = fileSystem.file('foo.txt');
+    file.parent.createSync(recursive: true);
+    file.writeAsBytesSync(<int>[1, 2, 3], flush: true);
+
+    final content = DevFSFileContent(file);
+    // markClean() is intentionally NOT called — simulates the _needsRebuild path.
+
+    final DateTime fiveSecondsAgo = file.statSync().modified.subtract(const Duration(seconds: 5));
+    final DateTime fiveSecondsLater = file.statSync().modified.add(const Duration(seconds: 5));
+
+    expect(content.isModifiedAfter(fiveSecondsAgo), isTrue);
+    expect(content.isModifiedAfter(fiveSecondsLater), isFalse);
+  });
+
   testWithoutContext('DevFSStringCompressingBytesContent', () {
     final content = DevFSStringCompressingBytesContent('uncompressed string');
 
